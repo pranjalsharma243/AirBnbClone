@@ -40,4 +40,10 @@ public class Hotel {
     @Embedded
     private HotelContactInfo hotelContactInfo;
 
+    @Column(nullable=false)
+    private Boolean active;
+
+    @ManyToOne
+    private User user;
+
 }

@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Entity
 @Getter
 @Setter
-@Table(name="hotel")
+@Table(name="Payment")
 public class Payment {
 
     @Id
