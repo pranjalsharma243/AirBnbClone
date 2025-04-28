@@ -1,10 +1,7 @@
 package com.myprojects.projects.airbnb.dto;
 
-import com.myprojects.projects.airbnb.entity.Hotel;
-import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

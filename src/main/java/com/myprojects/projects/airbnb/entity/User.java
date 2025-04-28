@@ -10,7 +10,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
-@Table(name="app_user")
+@Table(name="app_user")   // because of the reserved word "user" in Postgresql
 public class User {
 
     @Id
