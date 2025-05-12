@@ -50,7 +50,7 @@ public class Inventory {
     private BigDecimal surgeFactor;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;                          // It will be the base price * surge factor
+    private BigDecimal price;
 
     @Column(nullable = false)
     private String city;                               // to prevent Join operation as its an expensive operation
