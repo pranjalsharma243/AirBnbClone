@@ -14,7 +14,6 @@ import com.myprojects.projects.airbnb.service.BookingService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.http11.filters.GzipOutputFilter;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -111,7 +110,6 @@ public class BookingServiceImpl implements BookingService {
     public User getCurrentUser(){
         User user = new User();
         user.setId(1L); // Temporarily set user ID to 1
-
         return user;
     }
 }
