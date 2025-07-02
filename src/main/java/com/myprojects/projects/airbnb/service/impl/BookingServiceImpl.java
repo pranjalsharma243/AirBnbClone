@@ -6,6 +6,7 @@ import com.myprojects.projects.airbnb.dto.GuestDto;
 import com.myprojects.projects.airbnb.entity.*;
 import com.myprojects.projects.airbnb.entity.enums.BookingStatus;
 import com.myprojects.projects.airbnb.exception.ResourceNotFoundException;
+import com.myprojects.projects.airbnb.exception.UnAuthorizedException;
 import com.myprojects.projects.airbnb.repository.BookingRepository;
 import com.myprojects.projects.airbnb.repository.HotelRepository;
 import com.myprojects.projects.airbnb.repository.InventoryRepository;
@@ -15,6 +16,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -82,10 +84,16 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found with id: " + bookingId));
 
+        User user =getCurrentUser();
+        if(!user.equals(booking.getUser())){
+            throw new UnAuthorizedException("Booking does not belong to this user with id: " + user.getId());
+        }
+
         if(hasBookingExpired(booking)) {
             log.error("Booking with ID: {} has expired", bookingId);
             throw new IllegalStateException("Booking has expired");
         }
+
         if (booking.getBookingStatus() != BookingStatus.RESERVED) {
             log.error("Cannot add guests to booking with ID: {}. Current status: {}", bookingId, booking.getBookingStatus());
             throw new IllegalStateException("Cannot add guests to booking with ID, its not under RESERVED State: " + bookingId);
@@ -108,8 +116,6 @@ public class BookingServiceImpl implements BookingService {
                 .isBefore(LocalDateTime.now());
     }
     public User getCurrentUser(){
-        User user = new User();
-        user.setId(1L); // Temporarily set user ID to 1
-        return user;
+        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }
