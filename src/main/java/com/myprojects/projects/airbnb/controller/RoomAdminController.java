@@ -31,7 +31,6 @@ public class RoomAdminController {
     public ResponseEntity<List<RoomDto>> getAllRoomsInHotel(@PathVariable Long hotelId) {
 
         return new ResponseEntity<>(roomService.getAllRoomsInHotel(hotelId), HttpStatus.OK);
-
     }
 
     @GetMapping("/{roomId}")
@@ -47,6 +46,15 @@ public class RoomAdminController {
     public ResponseEntity<Void> deleteRoomById(@PathVariable Long hotelId, @PathVariable Long roomId) {
         roomService.deleteRoomById(roomId);
         return ResponseEntity.noContent().build();
+    }
+    @PutMapping("/{roomId}")
+    public ResponseEntity<RoomDto> updateRoomById(@PathVariable Long hotelId, @PathVariable Long roomId,
+                                                  @RequestBody RoomDto roomDto) {
+        if (!roomService.getAllRoomsInHotel(hotelId).stream().anyMatch(room -> room.getId().equals(roomId))) {
+            throw new ResourceNotFoundException("Room not found with ID: " + roomId);
+        }
+        return ResponseEntity.ok(roomService.updateRoomById(hotelId,roomId,roomDto));
+
     }
 
 }

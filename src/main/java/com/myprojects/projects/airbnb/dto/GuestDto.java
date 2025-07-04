@@ -19,7 +19,6 @@ public class GuestDto {
 
     private Gender gender;
 
-    private Integer age;
+    private String dateOfBirth;
 
-    private Set<Booking> bookings;
 }

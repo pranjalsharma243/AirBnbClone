@@ -1,8 +1,12 @@
 package com.myprojects.projects.airbnb.controller;
 
+import com.myprojects.projects.airbnb.dto.BookingDto;
 import com.myprojects.projects.airbnb.dto.HotelDto;
+import com.myprojects.projects.airbnb.dto.HotelReportDto;
 import com.myprojects.projects.airbnb.exception.ResourceNotFoundException;
+import com.myprojects.projects.airbnb.repository.HotelMinPriceRepository;
 import com.myprojects.projects.airbnb.repository.HotelRepository;
+import com.myprojects.projects.airbnb.service.BookingService;
 import com.myprojects.projects.airbnb.service.HotelService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -24,6 +29,7 @@ public class HotelController {
 
     private final HotelService hotelService;
     private final HotelRepository hotelRepository;
+    private final BookingService bookingService;
 
     @PostMapping
     public ResponseEntity<HotelDto> createNewHotel(@RequestBody HotelDto hotelDto) {
@@ -68,5 +74,24 @@ public class HotelController {
         return new ResponseEntity<>(hotelDtos, HttpStatus.OK);
 
     }
+
+    @GetMapping("/{hotelId}/bookings")
+    public ResponseEntity<List<BookingDto>> getAllBookingsByHotelId(@PathVariable Long hotelId) {
+        return ResponseEntity.ok(bookingService.getAllBookingsByHotelId(hotelId));
+
+    }
+
+    @GetMapping("/{hotelId}/reports")
+    public ResponseEntity<HotelReportDto> getHotelReport(@PathVariable Long hotelId,
+                                                         @RequestParam(required = false)LocalDate startDate,
+                                                         @RequestParam(required = false)LocalDate endDate) {
+        if(startDate==null) startDate=LocalDate.now().minusMonths(1);
+        if(endDate==null) endDate=LocalDate.now();
+        return ResponseEntity.ok(bookingService.getHotelReport(hotelId, startDate, endDate));
+
+    }
+
+
+
 
 }

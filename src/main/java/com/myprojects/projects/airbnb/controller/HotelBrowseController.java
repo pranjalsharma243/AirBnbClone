@@ -1,10 +1,7 @@
 package com.myprojects.projects.airbnb.controller;
 
 
-import com.myprojects.projects.airbnb.dto.HotelDto;
-import com.myprojects.projects.airbnb.dto.HotelInfoDto;
-import com.myprojects.projects.airbnb.dto.HotelPriceDto;
-import com.myprojects.projects.airbnb.dto.HotelSearchRequest;
+import com.myprojects.projects.airbnb.dto.*;
 import com.myprojects.projects.airbnb.repository.InventoryRepository;
 import com.myprojects.projects.airbnb.service.HotelService;
 import com.myprojects.projects.airbnb.service.InventoryService;
@@ -14,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -26,10 +24,22 @@ public class HotelBrowseController {
     private final InventoryService inventoryService;
 
     @GetMapping("/search")
-    public ResponseEntity<Page<HotelPriceDto>> searchHotels(@RequestBody HotelSearchRequest hotelSearchRequest) {
+    public ResponseEntity<Page<HotelPriceResponseDto>> searchHotels(@RequestParam String city,
+                                                                    @RequestParam LocalDate startDate,
+                                                                    @RequestParam LocalDate endDate,
+                                                                    @RequestParam Integer roomCount,
+                                                                    @RequestParam(defaultValue = "0") Integer page,
+                                                                    @RequestParam(defaultValue = "10") Integer size) {
 
-        var page=inventoryService.searchHotels(hotelSearchRequest);
-        return ResponseEntity.ok(page);
+        HotelSearchRequest hotelSearchRequest = new HotelSearchRequest();
+        hotelSearchRequest.setCity(city);
+        hotelSearchRequest.setStartDate(startDate);
+        hotelSearchRequest.setEndDate(endDate);
+        hotelSearchRequest.setRoomCount(roomCount);
+        hotelSearchRequest.setPage(page);
+        hotelSearchRequest.setSize(size);
+        var pageResponse=inventoryService.searchHotels(hotelSearchRequest);
+        return ResponseEntity.ok(pageResponse);
     }
 
     @GetMapping("/{hotelId}/info")
