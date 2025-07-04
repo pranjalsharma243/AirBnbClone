@@ -12,8 +12,6 @@ public class GuestDto {
     private Long id;
 
 
-    private User user;
-
     private String name;
 
 

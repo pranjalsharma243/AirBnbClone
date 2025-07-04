@@ -145,6 +145,7 @@ public class BookingServiceImpl implements BookingService {
         }
         String sessionUrl = checkoutService.getCheckoutSession(booking , frontendUrl+"/payments/success", frontendUrl+"/payments/failure" );
 
+        log.info("Payment session URL generated: {}", sessionUrl);
         booking.setBookingStatus(BookingStatus.PAYMENT_PENDING);
 
         bookingRepository.save(booking);
