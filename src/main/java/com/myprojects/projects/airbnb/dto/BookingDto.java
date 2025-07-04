@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -22,7 +23,6 @@ public class BookingDto {
 
 
     private Long id;
-    private User user;
     private Integer roomsCount;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
@@ -30,6 +30,7 @@ public class BookingDto {
     private LocalDateTime updatedAt;
     private BookingStatus bookingStatus;
     private Set<GuestDto> guests;
+    private BigDecimal amount;
 
 
 }

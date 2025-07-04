@@ -43,8 +43,8 @@ public class HotelBrowseController {
     }
 
     @GetMapping("/{hotelId}/info")
-    public ResponseEntity<HotelInfoDto> getHotelInfo(@PathVariable Long hotelId) {
-        HotelInfoDto hotelInfoDto = hotelService.getHotelInfoById(hotelId);
+    public ResponseEntity<HotelInfoDto> getHotelInfo(@PathVariable Long hotelId,@RequestBody HotelInfoRequestDto hotelInfoRequestDto) {
+        HotelInfoDto hotelInfoDto = hotelService.getHotelInfoById(hotelId, hotelInfoRequestDto);
         return ResponseEntity.ok(hotelInfoDto);
     }
 

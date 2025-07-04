@@ -1,8 +1,6 @@
 package com.myprojects.projects.airbnb.controller;
 
-import com.myprojects.projects.airbnb.dto.BookingDto;
-import com.myprojects.projects.airbnb.dto.BookingRequest;
-import com.myprojects.projects.airbnb.dto.GuestDto;
+import com.myprojects.projects.airbnb.dto.*;
 import com.myprojects.projects.airbnb.service.BookingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,9 +28,9 @@ public class HotelBookingController {
     }
 
     @PostMapping("/{bookingId}/payments")
-    public ResponseEntity<Map<String,String>> initiatePayment(@PathVariable Long bookingId) {
+    public ResponseEntity<BookingPaymentInitResponseDto> initiatePayment(@PathVariable Long bookingId) {
         String sessionUrl = bookingService.initiatePayments(bookingId);
-        return ResponseEntity.ok(Map.of("sessionUrl", sessionUrl));
+        return ResponseEntity.ok(new BookingPaymentInitResponseDto(sessionUrl));
     }
 
 
@@ -43,8 +41,8 @@ public class HotelBookingController {
     }
 
     @GetMapping("/{bookingId}/status")
-    public ResponseEntity<Map<String,String>> getBookingStatus(@PathVariable Long bookingId) {
-        return ResponseEntity.ok(Map.of("status", bookingService.getBookingStatus(bookingId)));
+    public ResponseEntity<BookingStatusResponseDto> getBookingStatus(@PathVariable Long bookingId) {
+        return ResponseEntity.ok(new BookingStatusResponseDto(bookingService.getBookingStatus(bookingId)));
     }
 
 

@@ -39,7 +39,7 @@ public class Hotel {
     private LocalDateTime updatedAt;
 
     @Embedded
-    private HotelContactInfo hotelContactInfo;
+    private HotelContactInfo contactInfo;
 
     @Column(nullable=false)
     private Boolean active;

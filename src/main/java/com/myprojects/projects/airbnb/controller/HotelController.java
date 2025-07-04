@@ -4,12 +4,10 @@ import com.myprojects.projects.airbnb.dto.BookingDto;
 import com.myprojects.projects.airbnb.dto.HotelDto;
 import com.myprojects.projects.airbnb.dto.HotelReportDto;
 import com.myprojects.projects.airbnb.exception.ResourceNotFoundException;
-import com.myprojects.projects.airbnb.repository.HotelMinPriceRepository;
 import com.myprojects.projects.airbnb.repository.HotelRepository;
 import com.myprojects.projects.airbnb.service.BookingService;
 import com.myprojects.projects.airbnb.service.HotelService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -61,7 +59,7 @@ public class HotelController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{hotelId}")
+    @PatchMapping("/{hotelId}/activate")
     public ResponseEntity<Void> activateHotel(@PathVariable Long hotelId) {
         hotelService.activateHotel(hotelId);
         return ResponseEntity.noContent().build();

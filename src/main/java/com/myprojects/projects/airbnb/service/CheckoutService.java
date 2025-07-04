@@ -4,6 +4,5 @@ import com.myprojects.projects.airbnb.entity.Booking;
 
 public interface CheckoutService {
 
-    String getCheckoutSession(Booking booking, String successUrl, String failureUrl);
-
+    String getCheckoutSession(Booking booking, String successUrl, String cancelUrl);
 }

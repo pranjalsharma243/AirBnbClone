@@ -46,8 +46,6 @@ public class Room {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-   /* @OneToMany(mappedBy = "room")
-    private List<Inventory> inventories;*/
 
 
 }

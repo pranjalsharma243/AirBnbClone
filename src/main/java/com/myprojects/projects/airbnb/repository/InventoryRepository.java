@@ -1,6 +1,7 @@
 package com.myprojects.projects.airbnb.repository;
 
 
+import com.myprojects.projects.airbnb.dto.RoomPriceDto;
 import com.myprojects.projects.airbnb.entity.Hotel;
 import com.myprojects.projects.airbnb.entity.Inventory;
 import com.myprojects.projects.airbnb.entity.Room;
@@ -143,6 +144,29 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
                        @Param("endDate") LocalDate endDate,
                        @Param("closed") boolean closed,
                        @Param("surgeFactor") BigDecimal surgeFactor);
+
+    @Query("""
+       SELECT new com.myprojects.projects.airbnb.dto.RoomPriceDto(
+            i.room,
+            CASE
+                WHEN COUNT(i) = :dateCount THEN AVG(i.price)
+                ELSE NULL
+            END
+        )
+       FROM Inventory i
+       WHERE i.hotel.id = :hotelId
+             AND i.date BETWEEN :startDate AND :endDate
+             AND (i.totalCount - i.bookedCount) >= :roomsCount
+             AND i.closed = false
+       GROUP BY i.room
+       """)
+    List<RoomPriceDto> findRoomAveragePrice(
+            @Param("hotelId") Long hotelId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("roomsCount") Long roomsCount,
+            @Param("dateCount") Long dateCount
+    );
 
 
 

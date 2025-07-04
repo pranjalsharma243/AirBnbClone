@@ -25,17 +25,16 @@ public class CheckoutServiceImpl implements CheckoutService {
 
     @Override
     public String getCheckoutSession(Booking booking, String successUrl, String failureUrl) {
-
-        log.info("Creating checkout session for booking ID: {}", booking.getId());
+        log.info("Creating session for booking with ID: {}", booking.getId());
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         try {
-          CustomerCreateParams customerCreateParams =  CustomerCreateParams.builder()
+            CustomerCreateParams customerParams = CustomerCreateParams.builder()
                     .setName(user.getName())
-                    .setName(user.getEmail())
+                    .setEmail(user.getEmail())
                     .build();
+            Customer customer = Customer.create(customerParams);
 
-            Customer customer = Customer.create(customerCreateParams);
             SessionCreateParams sessionParams = SessionCreateParams.builder()
                     .setMode(SessionCreateParams.Mode.PAYMENT)
                     .setBillingAddressCollection(SessionCreateParams.BillingAddressCollection.REQUIRED)
@@ -51,8 +50,8 @@ public class CheckoutServiceImpl implements CheckoutService {
                                                     .setUnitAmount(booking.getAmount().multiply(BigDecimal.valueOf(100)).longValueExact())
                                                     .setProductData(
                                                             SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                                                    .setName("Hotel " + booking.getHotel().getName() + " :  " + booking.getRoom().getType())
-                                                                    .setDescription("Booking ID:" + booking.getId())
+                                                                    .setName(booking.getHotel().getName() +" : "+ booking.getRoom().getType())
+                                                                    .setDescription("Booking ID: "+booking.getId())
                                                                     .build()
                                                     )
                                                     .build()
