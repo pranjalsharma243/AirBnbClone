@@ -1,3 +1,6 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
 name: Build and deploy JAR app to Azure Web App - bookingclone
 
 on:
@@ -10,58 +13,52 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: read #This is required for actions/checkout
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Java
+      - name: Set up Java version
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'microsoft'
 
       - name: Build with Maven
-        run: mvn clean package
-        env:
-          SPRING_PROFILES_ACTIVE: ${{ secrets.SPRING_PROFILES_ACTIVE }}
-          DB_URL: ${{ secrets.DB_URL }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
-          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        run: mvn clean install
 
-      - name: Upload JAR artifact
+      - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: java-app
-          path: target/*.jar
+          path: '${{ github.workspace }}/target/*.jar'
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
+    
     permissions:
-      id-token: write
-      contents: read
-
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
+  
     steps:
-      - name: Download artifact
+      - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: java-app
-
-      - name: Azure Login
+      
+      - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_45EF499FC87C40FB9D821F9B49ECBFD1 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_EBF41B011B804E779FC268079E8B1B85 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E0B60BCEE915414EBBA0207D7D3839DA }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_99F7878193CD4040986A9F0F897233B5 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_B8FB40DD1B5F44AF8589B30599E026B8 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_8DF0D1CAB233486BA30C6B7C494D9D13 }}
 
-      - name: Deploy JAR to Azure Web App
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'bookingclone'
           slot-name: 'Production'
           package: '*.jar'
+          
