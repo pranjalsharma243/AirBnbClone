@@ -36,7 +36,6 @@ jobs:
           FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
-
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
@@ -47,7 +46,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    
+
     permissions:
       id-token: write #This is required for requesting the JWT
       contents: read #This is required for actions/checkout
@@ -58,10 +57,12 @@ jobs:
         with:
           name: java-app
 
-      - name: Login using Managed Identity
+      - name: Login to Azure
         uses: azure/login@v2
         with:
-          auth-type: identity
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7E0D4EBAB23B4C65AF78E3B3058717C0 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_47A4C1A6103F4FDA8D90261653E26753 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FECC6FB95F054717AB915B21A85C9D17 }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -70,14 +71,5 @@ jobs:
           app-name: 'bookingclone'
           slot-name: 'Production'
           package: '*.jar'
-        env:
-          SPRING_PROFILES_ACTIVE: ${{ secrets.SPRING_PROFILES_ACTIVE }}
-          DB_URL: ${{ secrets.DB_URL }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
-          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         
           
