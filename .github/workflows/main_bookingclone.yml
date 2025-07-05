@@ -1,69 +1,56 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy JAR app to Azure Web App - bookingclone
+name: Build and Deploy Java App to Azure Web App
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read #This is required for actions/checkout
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up Java version
-        uses: actions/setup-java@v4
+      - name: Set up Java
+        uses: actions/setup-java@v3
         with:
           java-version: '17'
-          distribution: 'microsoft'
+          distribution: 'temurin'
 
       - name: Build with Maven
-        run: mvn clean install
-        env:
-          SPRING_PROFILES_ACTIVE: ${{ secrets.SPRING_PROFILES_ACTIVE }}
-          DB_URL: ${{ secrets.DB_URL }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
-          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-        
+        run: mvn clean package
 
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v4
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
         with:
           name: java-app
-          path: '${{ github.workspace }}/target/*.jar'
-        
+          path: target/*.jar
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    
-    permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
-  
+    environment:
+      name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
     steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v3
         with:
           name: java-app
-      
+
+      - name: List downloaded files (for debugging)
+        run: ls -l
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_E170263881D54AACAD188F4BF408C929 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_48826318C5B1428E80E374440D358FBB }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A1D4F7429EAF4F988B81625C1B57DF3C }}
+          enable-AzPSSession: false
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -71,15 +58,4 @@ jobs:
         with:
           app-name: 'bookingclone'
           slot-name: 'Production'
-          package: '*.jar'
-        env:
-          SPRING_PROFILES_ACTIVE: ${{ secrets.SPRING_PROFILES_ACTIVE }}
-          DB_URL: ${{ secrets.DB_URL }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
-          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-        
-          
+          package: './*.jar'
