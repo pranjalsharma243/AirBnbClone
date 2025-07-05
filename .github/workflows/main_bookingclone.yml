@@ -1,56 +1,58 @@
-name: Build and Deploy Java App to Azure Web App
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy WAR app to Azure Web App - bookingclone
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read #This is required for actions/checkout
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v3
+      - name: Set up Java version
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
-          distribution: 'temurin'
+          distribution: 'microsoft'
 
       - name: Build with Maven
-        run: mvn clean package
+        run: mvn clean install
 
-      - name: Upload artifact
+      - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: java-app
-          path: target/*.jar
+          path: '${{ github.workspace }}/target/*.war'
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+    
+    permissions:
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
 
     steps:
-      - name: Download artifact
+      - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: java-app
-
-      - name: List downloaded files (debugging)
-        run: ls -l
-
+      
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_E170263881D54AACAD188F4BF408C929 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_48826318C5B1428E80E374440D358FBB }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A1D4F7429EAF4F988B81625C1B57DF3C }}
-          enable-AzPSSession: false
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_45EF499FC87C40FB9D821F9B49ECBFD1 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_EBF41B011B804E779FC268079E8B1B85 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E0B60BCEE915414EBBA0207D7D3839DA }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -58,4 +60,5 @@ jobs:
         with:
           app-name: 'bookingclone'
           slot-name: 'Production'
-          package: './*.jar'
+          package: '*.war'
+          
