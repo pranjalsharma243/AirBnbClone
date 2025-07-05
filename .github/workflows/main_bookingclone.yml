@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy JAR app to Azure Web App - bookingclone
+name: Build and deploy WAR app to Azure Web App - bookingclone
 
 on:
   push:
@@ -26,23 +26,12 @@ jobs:
 
       - name: Build with Maven
         run: mvn clean install
-        env:
-          SPRING_PROFILES_ACTIVE: ${{ secrets.SPRING_PROFILES_ACTIVE }}
-          DB_URL: ${{ secrets.DB_URL }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
-          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-        
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: java-app
-          path: '${{ github.workspace }}/target/*.jar'
-        
+          path: '${{ github.workspace }}/target/*.war'
 
   deploy:
     runs-on: ubuntu-latest
@@ -51,7 +40,7 @@ jobs:
     permissions:
       id-token: write #This is required for requesting the JWT
       contents: read #This is required for actions/checkout
-  
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
@@ -61,9 +50,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7E0D4EBAB23B4C65AF78E3B3058717C0 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_47A4C1A6103F4FDA8D90261653E26753 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FECC6FB95F054717AB915B21A85C9D17 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_C5DBC9248104476E8FDF1D66F7610A5C }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_5067693063D1408FBDB2A634E391BD32 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A2B89D7AF60A4322AF51B673201E9745 }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -71,15 +60,5 @@ jobs:
         with:
           app-name: 'bookingclone'
           slot-name: 'Production'
-          package: '*.jar'
-        env:
-          SPRING_PROFILES_ACTIVE: ${{ secrets.SPRING_PROFILES_ACTIVE }}
-          DB_URL: ${{ secrets.DB_URL }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
-          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-        
+          package: '*.war'
           
