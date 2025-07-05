@@ -61,7 +61,7 @@ jobs:
       - name: Login using Managed Identity
         uses: azure/login@v2
         with:
-          auth-type: managed-identity
+          auth-type: identity
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
