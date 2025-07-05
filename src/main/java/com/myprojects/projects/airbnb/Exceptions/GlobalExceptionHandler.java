@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
         return buildErrorResponseEntity(apiError);
 
     }
-   /* @ExceptionHandler(Exception.class)
+   @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<?>> handleInternalServerException(Exception exception) {
         ApiError apiError= ApiError.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -28,7 +28,15 @@ public class GlobalExceptionHandler {
                 .build();
         return buildErrorResponseEntity(apiError);
 
-    }*/
+    }
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponse<?>> handleIllegalStateException(IllegalStateException exception) {
+        ApiError apiError = ApiError.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .message(exception.getMessage())
+                .build();
+        return buildErrorResponseEntity(apiError);
+    }
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ApiResponse<?>> handleAuthenticationException(AuthenticationException exception) {
         ApiError apiError=ApiError.builder()
