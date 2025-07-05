@@ -58,12 +58,10 @@ jobs:
         with:
           name: java-app
 
-      - name: Login to Azure
+      - name: Login using Managed Identity
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7E0D4EBAB23B4C65AF78E3B3058717C0 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_47A4C1A6103F4FDA8D90261653E26753 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FECC6FB95F054717AB915B21A85C9D17 }}
+          auth-type: managed-identity
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
