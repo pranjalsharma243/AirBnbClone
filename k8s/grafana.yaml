@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: airbnb-stack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:latest
+          env:
+            - name: GF_SERVER_ROOT_URL
+              value: "/grafana"
+            - name: GF_SERVER_SERVE_FROM_SUB_PATH
+              value: "true"
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              value: "admin123"
+          ports:
+            - containerPort: 3000
+              name: web
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "25m"
+            limits:
+              memory: "128Mi"
+              cpu: "50m"
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/grafana
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: web
+            initialDelaySeconds: 60
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: web
+            initialDelaySeconds: 90
+            periodSeconds: 30
+      volumes:
+        - name: data
+          emptyDir: {}  # Using emptyDir instead of PVC
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: airbnb-stack
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}'
+    backendconfig.cloud.google.com/backend-config: '{"default": "grafana-bcfg"}'
+spec:
+  selector:
+    app: grafana
+  ports:
+    - port: 3000
+      targetPort: 3000
+      name: web

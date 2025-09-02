@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: airbnb-app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      - postgres15
+
+  postgres15:
+    image: postgres:15
+    platform: linux/amd64
+    container_name: postgres15
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: airbnb
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

@@ -1,14 +1,8 @@
 package com.myprojects.projects.airbnb.security;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -18,39 +12,50 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 @EnableMethodSecurity(prePostEnabled = true)
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Autowired
-    private JWTAuthFilter jwtAuthFilter;
+    private final JWTAuthFilter jwtAuthFilter;
+    private final HandlerExceptionResolver handlerExceptionResolver;
 
-    @Autowired
-    @Qualifier("handlerExceptionResolver")
-    private HandlerExceptionResolver handlerExceptionResolver;
+    // Swagger + health allowlist (context-path /api/v1 ke saath + fallbacks)
+    private static final String[] SWAGGER_WHITELIST = {
+            "/api/v1/swagger-ui/**",
+            "/api/v1/v3/api-docs/**",
+            // fallbacks (local/profiles without context-path)
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-ui.html",
+            "/actuator/health"
+    };
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-
-        httpSecurity
-                .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable())
-                .sessionManagement(sessionConfig -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(SWAGGER_WHITELIST).permitAll()
                         .requestMatchers("/admin/**").hasRole("HOTEL_MANAGER")
-                        .requestMatchers("/bookings/**").authenticated()
-                        .requestMatchers("/users/**").authenticated()
+                        .requestMatchers("/bookings/**", "/users/**").authenticated()
                         .anyRequest().permitAll()
                 )
-                .exceptionHandling((exceptionHandlingConfigurer) -> exceptionHandlingConfigurer.accessDeniedHandler(accessDeniedHandler()));
+                .exceptionHandling(eh -> eh
+                        .accessDeniedHandler((request, response, ex) ->
+                                handlerExceptionResolver.resolveException(request, response, null, ex)
+                        )
+                );
 
-        return httpSecurity.build();
+        // Place JWT filter before UsernamePasswordAuthenticationFilter
+        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
     }
 
     @Bean
@@ -59,14 +64,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
-    }
-
-    @Bean
-    public AccessDeniedHandler accessDeniedHandler() {
-        return ( request,  response,  accessDeniedException)  -> {
-            handlerExceptionResolver.resolveException(request, response, null, accessDeniedException);
-        };
     }
 }

@@ -59,12 +59,12 @@ public class PricingUpdateService {
         LocalDate endDate = startDate.plusYears(1);
         List<Inventory> inventoryList = inventoryRepository.findByHotelAndDateBetween(hotel, startDate, endDate);
         updateInventoryPrices(inventoryList);
-        updateHotelMinPrice(hotel, inventoryList,startDate, endDate);
+        updateHotelMinPrice(hotel, inventoryList);
 
 
     }
 
-    private void updateHotelMinPrice(Hotel hotel, List<Inventory> inventoryList, LocalDate startDate, LocalDate endDate) {
+    private void updateHotelMinPrice(Hotel hotel, List<Inventory> inventoryList) {
 
         Map<LocalDate, BigDecimal> dailyMinPrices = inventoryList.stream()
                 .collect(Collectors.groupingBy(

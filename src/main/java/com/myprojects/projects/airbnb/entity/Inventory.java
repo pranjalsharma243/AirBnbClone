@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
         uniqueConstraints = @UniqueConstraint(
                 name = "unique_hotel_room_date",
                 columnNames = {"hotel_id", "room_id", "date"}
-
         ))
 @Builder
 @NoArgsConstructor
@@ -32,8 +31,9 @@ public class Inventory {
     private Hotel hotel;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_id", nullable = false)
+    @JoinColumn(name= "room_id", nullable = false)
     private Room room;
+
     @Column(nullable = false)
     private LocalDate date;
 
@@ -53,15 +53,14 @@ public class Inventory {
     private BigDecimal price;
 
     @Column(nullable = false)
-    private String city;                               // to prevent Join operation as its an expensive operation
+    private String city;
+
     @Column(nullable = false)
     private Boolean closed;
-
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
 }

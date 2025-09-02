@@ -17,7 +17,7 @@ public interface InventoryService {
 
     Page<HotelPriceResponseDto> searchHotels(HotelSearchRequest hotelSearchRequest);
 
-    List<InventoryDto> getAllInventoryByRoom(Long roomId);
+    List<InventoryDto> getAllInventoryByRoom(Long HotelId,Long roomId);
 
     void updateInventory(Long roomId, UpdateInventoryRequestDto updateInventoryRequestDto);
 }

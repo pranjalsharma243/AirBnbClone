@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airbnb-app
+  namespace: airbnb-stack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airbnb-app
+  template:
+    metadata:
+      labels:
+        app: airbnb-app
+    spec:
+      containers:
+        - name: app
+          image: pranjal2430/airbnb-app:latest
+          ports:
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - configMapRef:
+                name: app-config
+            - secretRef:
+                name: app-secrets
+          resources:
+            requests:
+              memory: "406Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "200m"
+          readinessProbe:
+            httpGet:
+              path: /api/v1/actuator/health
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 15
+            failureThreshold: 5
+          livenessProbe:
+            httpGet:
+              path: /api/v1/actuator/health
+              port: 8080
+            initialDelaySeconds: 180
+            periodSeconds: 30
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: airbnbapp-service
+  namespace: airbnb-stack
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}'
+    backendconfig.cloud.google.com/backend-config: '{"default": "airbnb-app-bcfg"}'
+spec:
+  selector:
+    app: airbnb-app
+  ports:
+    - port: 80
+      targetPort: 8080
+      name: http
+  type: ClusterIP

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hotel-booking-frontend
+  namespace: airbnb-stack
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hotel-booking-frontend
+  template:
+    metadata:
+      labels:
+        app: hotel-booking-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: pranjal2430/hotel-booking-frontend:v1.0.5
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hotel-booking-frontend-service
+  namespace: airbnb-stack
+spec:
+  selector:
+    app: hotel-booking-frontend
+  ports:
+    - port: 80
+      targetPort: 80

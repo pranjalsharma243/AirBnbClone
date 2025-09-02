@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: airbnb-stack
+data:
+  SPRING_PROFILES_ACTIVE: "dev"
+  SERVER_PORT: "8080"
+  FRONTEND_URL: "http://localhost"  # Update this with your actual domain after ingress setup
+  DB_URL: "jdbc:postgresql://postgres15:5432/airbnb"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres15:5432/airbnb"
+  MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,prometheus"
+  MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: "always"

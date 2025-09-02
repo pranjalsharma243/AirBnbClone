@@ -42,24 +42,27 @@ public class InventoryServiceImpl implements InventoryService {
     private final HotelRepository hotelRepository;
 
     @Override
-    public void initializeRoomForAYear(Room room){
-        LocalDate today=LocalDate.now();
-        LocalDate endDate=today.plusYears(1);
+    public void initializeRoomForAYear(Room room) {
+        LocalDate today = LocalDate.now();
+        LocalDate endDate = today.plusYears(1);
 
-        for(;!today.isAfter(endDate); today=today.plusDays(1)) {
-            Inventory inventory = Inventory.builder()
-                            .hotel(room.getHotel())
-                            .room(room)
-                            .bookedCount(0)
-                            .reservedCount(0)
-                            .city(room.getHotel().getCity())
-                            .date(today)
-                            .price(room.getBasePrice())
-                            .surgeFactor(BigDecimal.ONE)
-                            .totalCount(room.getTotalCount())
-                            .closed(false)
-                            .build();
-            inventoryRepository.save(inventory);
+        while (!today.isAfter(endDate)) {
+            if (!inventoryRepository.existsByRoomAndDate(room, today)) {
+                Inventory inventory = Inventory.builder()
+                        .hotel(room.getHotel())
+                        .room(room)
+                        .bookedCount(0)
+                        .reservedCount(0)
+                        .city(room.getHotel().getCity())
+                        .date(today)
+                        .price(room.getBasePrice())
+                        .surgeFactor(BigDecimal.ONE)
+                        .totalCount(room.getTotalCount())
+                        .closed(false)
+                        .build();
+                inventoryRepository.save(inventory);
+            }
+            today = today.plusDays(1);
         }
     }
     @Override
@@ -96,15 +99,20 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     @Transactional
-    public List<InventoryDto> getAllInventoryByRoom(Long roomId) {
+    public List<InventoryDto> getAllInventoryByRoom(Long hotelId,Long roomId) {
+        Hotel hotel = hotelRepository.findById(hotelId)
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with ID: {}" + hotelId));
         log.info("Fetching all inventories for room with ID: {}", roomId);
         Room room = roomRepository.findById(roomId).orElseThrow(() -> new ResourceNotFoundException("Room not found with ID: {}" + roomId));
         User user = getCurrentUser();
-        if(!user.equals(room.getHotel().getOwner())) {
+        if (!room.getHotel().getId().equals(hotelId)) {
+            throw new ResourceNotFoundException("Room with ID " + roomId + " does not belong to Hotel ID " + hotelId);
+        }
+        if(!user.equals(hotel.getOwner())) {
             log.error("Unauthorized access attempt by user: {}", user.getId());
             throw new AccessDeniedException("You are not the owner of room with ID: {} " + roomId);
         }
-        return inventoryRepository.findByRoomOrderByDate(room)
+        return inventoryRepository.findByRoomAndHotelOrdered(hotelId,roomId)
                 .stream()
                 .map(inventory -> modelMapper.map(inventory, InventoryDto.class))
                 .collect(Collectors.toList());

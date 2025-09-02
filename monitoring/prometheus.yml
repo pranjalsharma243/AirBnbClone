@@ -1,0 +1,9 @@
+# monitoring/prometheus.yml
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'spring-boot'
+    metrics_path: '/api/v1/actuator/prometheus'
+    static_configs:
+      - targets: ['airbnb-app:8080']

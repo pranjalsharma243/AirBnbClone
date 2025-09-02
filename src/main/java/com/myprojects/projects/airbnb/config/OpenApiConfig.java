@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -21,17 +22,15 @@ import org.springframework.context.annotation.Configuration;
                         email = "pranjalsharma243@gmail.com",
                         url = "https://www.linkedin.com/in/pranjal-sharma-1bb67b170/"
                 ),
-                license = @License(
-                        name = "Apache 2.0",
-                        url = "https://www.apache.org/licenses/LICENSE-2.0.html"
-                )
+                license = @License(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0.html")
         ),
         externalDocs = @ExternalDocumentation(
                 description = "Project Documentation",
                 url = "https://github.com/pranjalsharma243/AirBnbClone"
         ),
-        security = {
-                @SecurityRequirement(name = "jwtScheme")
+        security = { @SecurityRequirement(name = "jwtScheme") },
+        servers = {
+                @Server(url = "https://pranjalsharma.de/api/v1", description = "Production")
         }
 )
 @SecurityScheme(
@@ -41,6 +40,4 @@ import org.springframework.context.annotation.Configuration;
         bearerFormat = "JWT",
         description = "JWT authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
 )
-public class OpenApiConfig {
-
-}
+public class OpenApiConfig {}

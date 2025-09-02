@@ -46,6 +46,7 @@ public class HotelController {
         return new ResponseEntity<>(hotel, HttpStatus.CREATED);
     }
 
+
     @Operation(summary = "Get hotel by ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Hotel found",
